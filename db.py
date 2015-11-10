@@ -30,17 +30,21 @@ class db(object):
     global c
     c = conn.cursor()
 
-    #adds table and columns to db file
+    #adds tables and columns to db file
     def create(self):  
-        c.execute('''CREATE TABLE files
+        c.execute('''CREATE TABLE hashtable
                 (filename text,
                 hash integer);''')
+        c.execute('''CREATE TABLE tags
+                (hash integer,
+                tags text,
+                filetype text);''')
         print("Table created")
         conn.commit()
     
     #writes filenames and their respective hashes to db file
-    def add(self, files): 
-        c.execute('INSERT INTO files VALUES (?, ?)', files)
+    def add(self, files, tags): 
+        c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
