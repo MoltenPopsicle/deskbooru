@@ -19,10 +19,12 @@ class db(object):
                 md5hash = h.hexdigest()
                 filenames.append(filein[count]) #adds filename to list
                 filenames.append(md5hash) #adds the hash to list
-                filenames.append('''
-''') #adds a newline to the list
-                count += 1
- 
+            
+            #uses add function to add file in list to db file, clears list and does next file
+            db().add(filenames) 
+            del filenames[:]
+            count += 1
+
     global conn
     conn = sqlite3.connect('tags.db') #sqlite3.connect creates file if it doesn't exist
     global c
@@ -37,9 +39,8 @@ class db(object):
         conn.commit()
     
     #writes filenames and their respective hashes to db file
-    def add(self): 
-        c.execute('INSERT INTO files VALUES (?, ?)', filenames)
-        print("Files hashed and added")
+    def add(self, files): 
+        c.execute('INSERT INTO files VALUES (?, ?)', files)
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
@@ -49,5 +50,4 @@ if os.stat('tags.db').st_size == 0: #checks if db file has table in it by filesi
     db().create()
 
 db().hashlist()
-print filenames
-conn.close()
+print("Files %s hashed and added to the database" % filein)
