@@ -43,7 +43,7 @@ class db(object):
         conn.commit()
     
     #writes filenames and their respective hashes to db file
-    def add(self, files, tags): 
+    def add(self, files): 
         c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
         conn.commit()
 
