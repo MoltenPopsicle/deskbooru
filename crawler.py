@@ -1,7 +1,7 @@
-#!/bin/python2
+#!/bin/python2.7
 import os
 from os.path import join, getsize
-scanroot = input('Where do you want to scan\n? ')
+scanroot = raw_input('Where do you want to scan\n? ')
 print ('Scan root set to', scanroot)
 
 for root, dirs, files in os.walk(scanroot):
