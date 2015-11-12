@@ -7,7 +7,6 @@ class db(object):
     
     global filenames
     filenames = [] #list of all files and hashes to insert into db file
-
     #hashes input file
     def hashlist(self):
         h = hashlib.md5()
@@ -21,6 +20,9 @@ class db(object):
                 filenames.append(md5hash) #adds the hash to list
             
             #uses add function to add file in list to db file, clears list and does next file
+            tagsin = raw_input("What tags do you want to assign? (Separate byone space)")
+            filenames.append(tagsin)
+
             db().add(filenames) 
             del filenames[:]
             count += 1
@@ -34,17 +36,14 @@ class db(object):
     def create(self):  
         c.execute('''CREATE TABLE hashtable
                 (filename text,
-                hash integer);''')
-        c.execute('''CREATE TABLE tags
-                (hash integer,
-                tags text,
-                filetype text);''')
+                hash integer,
+                tags text);''')
         print("Table created")
         conn.commit()
     
     #writes filenames and their respective hashes to db file
     def add(self, files): 
-        c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
+        c.execute('INSERT INTO hashtable VALUES (?, ?, ?)', files)
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
