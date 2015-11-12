@@ -1,6 +1,9 @@
 import os
 import sys
+import sqlite3
 
+index = open('./index', 'w+')
+open('./index', 'w').close()
 scan = raw_input('Where do you want to scan\n? ')
 def get_filepaths(directory):
     """
@@ -21,4 +24,4 @@ def get_filepaths(directory):
 
 # Run the above function and store its results in a variable.
 full_file_paths = get_filepaths(scan)
-print full_file_paths
+print >> index, full_file_paths
