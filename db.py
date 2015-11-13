@@ -20,11 +20,11 @@ class db(object):
                 filenames.append(md5hash) #adds the hash to list
 
             #uses add function to add file in list to db file, clears list and does next file
-            tagsin = raw_input("What tags do you want to assign? (Separate by one space)")
-            filenames.append(tagsin)
+            tagsin = raw_input("What tags do you want to assign for %s? (Separate by one space) " % filein[count]).split()
 
-            db().add(filenames)
+            db().add(filenames, tagsin)
             del filenames[:]
+            del tagsin[:]
             count += 1
 
     global conn
@@ -36,14 +36,19 @@ class db(object):
     def create(self):
         c.execute('''CREATE TABLE hashtable
                 (filename text,
-                hash integer,
-                tags text);''')
-        print("Table created")
+                hash int);''')
+        c.execute('''CREATE TABLE tags
+                 (id int,
+                 tag text);''')
+        print("Database created")
         conn.commit()
 
     #writes filenames and their respective hashes to db file
-    def add(self, files):
-        c.execute('INSERT INTO hashtable VALUES (?, ?, ?)', files)
+    def add(self, files, tags):
+        c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
+        
+        for t in tags:
+            c.execute('INSERT INTO tags (tag) VALUES (?)', [t])
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
