@@ -36,8 +36,11 @@ class db(object):
     def create(self):  
         c.execute('''CREATE TABLE hashtable
                 (filename text,
-                hash integer,
+                hash int,
                 tags text);''')
+        c.execute('''CREATE TABLE tagtable
+                (tag text,
+                hash int);''')
         print("Table created")
         conn.commit()
     
