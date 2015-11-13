@@ -4,7 +4,7 @@ import sqlite3
 import hashlib
 
 class db(object):
-    
+
     global filenames
     filenames = [] #list of all files and hashes to insert into db file
     #hashes input file
@@ -18,12 +18,12 @@ class db(object):
                 md5hash = h.hexdigest()
                 filenames.append(filein[count]) #adds filename to list
                 filenames.append(md5hash) #adds the hash to list
-            
+
             #uses add function to add file in list to db file, clears list and does next file
-            tagsin = raw_input("What tags do you want to assign? (Separate byone space)")
+            tagsin = raw_input("What tags do you want to assign? (Separate by one space)")
             filenames.append(tagsin)
 
-            db().add(filenames) 
+            db().add(filenames)
             del filenames[:]
             count += 1
 
@@ -33,16 +33,16 @@ class db(object):
     c = conn.cursor()
 
     #adds tables and columns to db file
-    def create(self):  
+    def create(self):
         c.execute('''CREATE TABLE hashtable
                 (filename text,
                 hash integer,
                 tags text);''')
         print("Table created")
         conn.commit()
-    
+
     #writes filenames and their respective hashes to db file
-    def add(self, files): 
+    def add(self, files):
         c.execute('INSERT INTO hashtable VALUES (?, ?, ?)', files)
         conn.commit()
 
