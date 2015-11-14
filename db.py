@@ -5,8 +5,6 @@ import hashlib
 
 class db(object):
     
-    global filenames
-    filenames = [] #list of all files and hashes to insert into db file
     #hashes input file
     def hashlist(self):
         h = hashlib.md5()
@@ -16,16 +14,14 @@ class db(object):
                 buff = f.read()
                 h.update(buff)
                 md5hash = h.hexdigest()
-                filenames.append(filein[count]) #adds filename to list
-                filenames.append(md5hash) #adds the hash to list
             
             #uses add function to add file in list to db file, clears list and does next file
-            tagsin = raw_input("What tags do you want to assign? (Separate byone space)")
-            filenames.append(tagsin)
-
-            db().add(filenames) 
-            del filenames[:]
+            rawtags = raw_input("What tags do you want to assign? (Separate by one space) ")
+            tagsin = rawtags.split()
+            
+            db().add(filein[count], md5hash, tagsin) 
             count += 1
+
 
     global conn
     conn = sqlite3.connect('tags.db') #sqlite3.connect creates file if it doesn't exist
@@ -35,19 +31,30 @@ class db(object):
     #adds tables and columns to db file
     def create(self):  
         c.execute('''CREATE TABLE hashtable
-                (filename text,
-                hash int,
-                tags text);''')
+                (hash int PRIMARY KEY,
+                filename text);''')
         c.execute('''CREATE TABLE tagtable
                 (tag text PRIMARY KEY,
-                hash int);''')
+                hashes int);''')
         print("Table created")
         conn.commit()
     
     #writes filenames and their respective hashes to db file
-    def add(self, files, filehash, tag): 
-        c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
-        c.execute('INSERT INTO tagtable VALUES (?, ?)', filehash, tag)
+    def add(self, files, hash, tags): 
+        c.execute('INSERT OR REPLACE INTO hashtable VALUES (?,?)', (hash, files))
+        
+        for tag in tags:
+            c.execute('INSERT OR IGNORE INTO tagtable (tag) VALUES (?)', (tag,))
+            
+            c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
+            oldhashes = c.fetchone()[0]
+            if oldhashes is None:
+                hashes = hash
+            else:
+                hashes = ' '.join([oldhashes, hash])
+            
+            c.execute('UPDATE tagtable SET hashes = ? WHERE tag = ?', (hashes, tag,))
+        
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
