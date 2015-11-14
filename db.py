@@ -16,7 +16,7 @@ class db(object):
                 md5hash = h.hexdigest()
             
             #uses add function to add file in list to db file, clears list and does next file
-            rawtags = raw_input("What tags do you want to assign? (Separate by one space) ")
+            rawtags = raw_input("What tags do you want to assign to %s? (Separate by one space) " % filein[count])
             tagsin = rawtags.split()
             
             db().add(filein[count], md5hash, tagsin) 
