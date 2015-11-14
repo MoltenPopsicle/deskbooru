@@ -39,14 +39,15 @@ class db(object):
                 hash int,
                 tags text);''')
         c.execute('''CREATE TABLE tagtable
-                (tag text,
+                (tag text PRIMARY KEY,
                 hash int);''')
         print("Table created")
         conn.commit()
     
     #writes filenames and their respective hashes to db file
-    def add(self, files): 
-        c.execute('INSERT INTO hashtable VALUES (?, ?, ?)', files)
+    def add(self, files, filehash, tag): 
+        c.execute('INSERT INTO hashtable VALUES (?, ?)', files)
+        c.execute('INSERT INTO tagtable VALUES (?, ?)', filehash, tag)
         conn.commit()
 
 sys.argv.pop(0) #removes first entry from sys.argv (the script's filename)
