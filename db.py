@@ -35,7 +35,7 @@ class db(object):
                 filename text);''')
         c.execute('''CREATE TABLE tagtable
                 (tag text PRIMARY KEY,
-                hashes integer);''')
+                hashes text);''')
         print("Table created")
         conn.commit()
     
