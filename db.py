@@ -31,11 +31,11 @@ class db(object):
     #adds tables and columns to db file
     def create(self):  
         c.execute('''CREATE TABLE hashtable
-                (hash int PRIMARY KEY,
+                (hash integer PRIMARY KEY,
                 filename text);''')
         c.execute('''CREATE TABLE tagtable
                 (tag text PRIMARY KEY,
-                hashes int);''')
+                hashes integer);''')
         print("Table created")
         conn.commit()
     
