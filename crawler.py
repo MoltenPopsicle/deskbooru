@@ -1,22 +1,15 @@
 import os
 import sys
 
-index = open('./index', 'w+')
-open('./index', 'w').close()
-scan = raw_input('Where do you want to scan\n? ')
-def get_filepaths(directory):
-    file_paths = []  # List which will store all of the full filepaths.
-    # Walk the tree.
-    for root, directories, files in os.walk(directory):
-        for filename in files:
-            # Join the two strings in order to form the full filepath.
-            filepath = os.path.join(root, filename)
-            file_paths.append(filepath)
-            print >> index, root,filename
-    return file_paths  # Self-explanatory.
+class crawl(object):
 
-# Run the above function and store its results in a variable.
-full_file_paths = get_filepaths(scan)
+    def get_filepaths(self, directory):
+        file_paths = []  # List which will store all of the full filepaths.
+        # Walk the tree.
+        for root, dirs, files in os.walk(directory):
+            for filename in files:
+                filepath = os.path.join(root, filename)
+                file_paths.append(filepath)
+        return file_paths
 
-#print >> index, full_file_paths #jam the data in the index #old stuff
 
