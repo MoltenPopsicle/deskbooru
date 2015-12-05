@@ -11,5 +11,3 @@ class crawl(object):
                 filepath = os.path.join(root, filename)
                 file_paths.append(filepath)
         return file_paths
-
-

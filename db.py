@@ -7,18 +7,18 @@ class db(object):
     
     #hashes input file
     def hashlist(self, filein):
-        h = hashlib.md5()
-        count = 0
-        for arg in filein:
-            with open(arg, 'rb') as f:
+        def hash_filein(filein):
+            h = hashlib.md5()
+            with open(filein, 'rb') as f:
                 buff = f.read()
                 h.update(buff)
-                md5hash = h.hexdigest()
-            
-            #uses tagassign function to add file in list to db file, clears list and does next file
+                return h.hexdigest()
+        #uses tagassign function to add file in list to db file, clears list and does next file
+        count = 0
+        for arg in filein:
             rawtags = raw_input("Tags to assign to %s (separate by one space): " % filein[count])
             tagsin = rawtags.split()
-            
+            md5hash = hash_filein(str(filein[count]))
             db().tagassign(filein[count], md5hash, tagsin) 
             count += 1
 
@@ -45,10 +45,12 @@ class db(object):
             oldhashes = c.fetchone()[0]
             if oldhashes is None:
                 hashes = hash
+            elif hash in oldhashes:
+                hashes = oldhashes
             else:
-                hashes = ', '.join([oldhashes, hash])      
+                hashes = ', '.join([oldhashes, hash])
            #updates row 
-            c.execute('UPDATE tagtable SET hashes = ? WHERE tag = ?', (hashes, tag,)) 
+            c.execute('UPDATE tagtable SET hashes = ? WHERE tag = ?', (hashes, tag,))  
         conn.commit()
     
         
@@ -59,7 +61,7 @@ class db(object):
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
             tag_hashes = c.fetchone()
-            tag_hashlist = tag_hashes[0].split(', ')
+            tag_hashlist = tag_hashes.split(', ')[0]
             first_hashes.extend(tag_hashlist)
         for current_hash in first_hashes:
             occurrences = first_hashes.count(current_hash)
