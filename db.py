@@ -14,13 +14,11 @@ class db(object):
                 h.update(buff)
                 return h.hexdigest()
         #uses tagassign function to add file in list to db file, clears list and does next file
-        count = 0
         for arg in filein:
-            rawtags = raw_input("Tags to assign to %s (separate by one space): " % filein[count])
+            rawtags = raw_input("Tags to assign to %s (separate by one space): " % arg)
             tagsin = rawtags.split()
-            md5hash = hash_filein(str(filein[count]))
-            db().tagassign(filein[count], md5hash, tagsin) 
-            count += 1
+            md5hash = hash_filein(arg)
+            db().tagassign(arg, md5hash, tagsin) 
 
 
     #adds tables and columns to db file
