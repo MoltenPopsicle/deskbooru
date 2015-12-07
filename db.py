@@ -53,23 +53,15 @@ class db(object):
     
         
     def search(self, tags):
-        first_hashes = []
-        seen = set()
-        matched_hashes = []
+        tag_hashlist = []
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
-            tag_hashes = c.fetchone()
-            tag_hashlist = tag_hashes.split(', ')[0]
-            first_hashes.extend(tag_hashlist)
-        for current_hash in first_hashes:
-            occurrences = first_hashes.count(current_hash)
-            if occurrences != len(tags):
-                first_hashes.remove(current_hash)
-            else:
-                matched_hashes.append(current_hash)
-                
-        print(str(matched_hashes) + '\n')
-        print str(seen)
+            tag_hashlist.append(c.fetchone())
+	if len(tag_hashlist) <= 1 or len(tag_hashlist[0] != len(tag_hashlist[1]):
+	t = 0
+	while t <= len(tag_hashlist):
+		tag_hashlist[t].split(', ')
+        print(str(tag_hashlist) + '\n')
                         
                         
                 
