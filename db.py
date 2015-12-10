@@ -57,15 +57,13 @@ class db(object):
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
             hashes = c.fetchone()
-            print(hashes)
-            if len(hashes) > 33:
-                hashes = hashes.split(', ') 
-            #tag_hashlist.extend(hashes)
-            tag_hashlist.append(hashes)
-	print(tag_hashlist + '\n')
-                        
-                        
-                
+            if len(hashes[0]) > 33:
+                for curhash in hashes:
+                    tag_hashlist.extend(curhash.split(', '))
+            else:
+                tag_hashlist.append(hashes)
+        return tag_hashlist                
+              
 
                 
 
