@@ -56,12 +56,18 @@ class db(object):
         tag_hashlist = []
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
-            hashes = c.fetchone()
-            if len(hashes[0]) > 33:
-                for curhash in hashes:
-                    tag_hashlist.extend(curhash.split(', '))
+            hashes = c.fetchone()[0]
+            if len(hashes) > 33:
+                hashes = hashes.split(', ')
+                tag_hashlist.extend(hashes)
+                #for curhash in hashes:
+                 #   tag_hashlist.extend(curhash.split(', '))
             else:
                 tag_hashlist.append(hashes)
+            for h in tag_hashlist:
+                if h not in hashes:
+                    print("not in")
+                    tag_hashlist.remove(h)
         return tag_hashlist                
               
 
