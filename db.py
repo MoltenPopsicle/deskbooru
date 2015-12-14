@@ -54,20 +54,23 @@ class db(object):
         
     def search(self, tags):
         tag_hashlist = []
+        initial = False
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
-            hashes = c.fetchone()[0]
-            if len(hashes) > 33:
-                hashes = hashes.split(', ')
-                tag_hashlist.extend(hashes)
-                #for curhash in hashes:
-                 #   tag_hashlist.extend(curhash.split(', '))
+            hashes = c.fetchone()
+            if len(hashes[0]) <= 33:
+                initial = True
+                return hashes
             else:
-                tag_hashlist.append(hashes)
-            for h in tag_hashlist:
-                if h not in hashes:
-                    print("not in")
-                    tag_hashlist.remove(h)
+                hashes = hashes[0].split(', ')
+                if initial == False:
+                    tag_hashlist.extend(hashes)
+                    initial = True
+            if initial == True:
+                for h in tag_hashlist:
+                    if h not in hashes:
+                        print("not in")
+                        tag_hashlist.remove(h)
         return tag_hashlist                
               
 
