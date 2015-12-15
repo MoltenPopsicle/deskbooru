@@ -4,7 +4,6 @@ import sqlite3
 import hashlib
 
 class db(object):
-    
     #hashes input file
     def hashlist(self, filein):
         def hash_filein(filein):
