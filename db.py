@@ -52,32 +52,42 @@ class db(object):
         conn.commit()
     
         
-    def search(self, tags):
+class search(object):
+    global initial
+    initial = False
+    
+    def and_case(self, tag_hashlist, hashes):
+        temphash = []
+        if len(tag_hashlist) <= 1:
+            return tag_hashlist
+        else:
+            for h in tag_hashlist:
+                if h in hashes:
+                    temphash.append(h)
+            print(temphash)
+            return temphash
+
+    def results(self, tags):
         tag_hashlist = []
         file_list = []
         initial = False
         for tag in tags:
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
             hashes = c.fetchone()[0]
-            if len(hashes) <= 33:
-                initial = True
-                return hashes
+            if len(hashes) <= 33 and initial == False:
+                tag_hashlist = hashes
             else:
                 hashes = hashes.split(', ')
                 if initial == False:
                     tag_hashlist.extend(hashes)
-                    initial = True
             if initial == True:
-                for h in tag_hashlist:
-                    if h not in hashes:
-                        tag_hashlist.remove(h)
+                tag_hashlist = search().and_case(tag_hashlist, hashes)
+            initial = True
         for h in tag_hashlist:
             c.execute('SELECT filename FROM hashtable WHERE hashes = ?', (h,))
             filename = c.fetchone()
-            file_list.append(filename) 
-        return file_list        
-              
-
+            file_list.append(filename)
+        return file_list
                 
 
 
