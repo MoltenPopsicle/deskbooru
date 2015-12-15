@@ -20,7 +20,6 @@ class db(object):
             md5hash = hash_filein(arg)
             db().tagassign(arg, md5hash, tagsin) 
 
-
     #adds tables and columns to db file
     def create(self):  
         c.execute('''CREATE TABLE hashtable
@@ -30,8 +29,7 @@ class db(object):
                 (tag text PRIMARY KEY,
                 hashes text);''')
         print("Table created")
-        conn.commit()
-    
+        conn.commit() 
 
     #writes filenames and their respective hashes to db file
     def tagassign(self, file, hash, tags): 
