@@ -1,5 +1,6 @@
-from db import db
+from db import db, search
 tags_input = raw_input("Tags to search for (separate by a space):")
 tags_search = tags_input.split(' ')
-hashhh = db().search(tags_search)
+print(tags_search)
+hashhh = search().results(tags_search)
 print(hashhh)
