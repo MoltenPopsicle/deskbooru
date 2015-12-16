@@ -53,28 +53,25 @@ class search(object):
     global initial
     initial = False
  
-    def and_case(self, tag_hashlist, hashes):
+    def regex(self, tag_hashlist, hashes, tag):
         temphash = []
         if len(tag_hashlist) <= 1:
             return tag_hashlist
         else:
             for h in tag_hashlist:
-                if h in hashes:
+                if tag in all_matching:
+                    tag_hashlist.extend(hashes)
+                elif tag in minus and h in hashes:
+                    temphash.append(h)    
+                elif h not in hashes:
                     temphash.append(h)
-                for h in temphash:
-                    tag_hashlist.remove(h)
-        return tag_hashlist
-    
-    def minus(self, tag_hashlist, hashes):
-        temphash = []
-        for h in tag_hashlist:
-            if h in hashes:
-                temphash.append(h)
-        for h in temphash:
+            for h in temphash:
                 tag_hashlist.remove(h)
         return tag_hashlist
-
+    
     def results(self, tags):
+        global all_matching
+        global minus
         tag_hashlist = []
         file_list = []
         all_matching = []
@@ -96,12 +93,7 @@ class search(object):
                 if initial == False:
                     tag_hashlist.extend(hashes)
             if initial == True:
-                if tag in all_matching:
-                    tag_hashlist.extend(hashes)
-                elif tag in minus:
-                    search().minus(tag_hashlist, hashes)
-                else:
-                    tag_hashlist = search().and_case(tag_hashlist, hashes)
+                tag_hashlist = search().regex(tag_hashlist, hashes, tag)
             initial = True
         for h in tag_hashlist:
             c.execute('SELECT filename FROM hashtable WHERE hashes = ?', (h,))
