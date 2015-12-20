@@ -50,31 +50,33 @@ class db(object):
     
         
 class search(object):
-    global initial
-    initial = False
- 
     def regex(self, tag_hashlist, hashes, tag):
         temphash = []
         if len(tag_hashlist) <= 1:
             return tag_hashlist
+        elif tag in all_matching:
+            tag_hashlist.extend(hashes)
         else:
             for h in tag_hashlist:
-                if tag in all_matching:
-                    tag_hashlist.extend(hashes)
-                elif tag in minus and h in hashes:
-                    temphash.append(h)    
-                elif h not in hashes:
+                if tag in minus and h in hashes:
+                    print("%s is minus and %s will be removed" % (tag, h))
+                    temphash.append(h)
+                elif tag in and_case and h not in hashes:
                     temphash.append(h)
             for h in temphash:
                 tag_hashlist.remove(h)
+                print("HASH" + h)
+            print(temphash)
         return tag_hashlist
     
     def results(self, tags):
         global all_matching
         global minus
-        tag_hashlist = []
+        global and_case
         file_list = []
         all_matching = []
+        and_case = []
+        tag_hashlist = []
         minus = []
         initial = False
         for tag in tags:
@@ -84,6 +86,8 @@ class search(object):
             elif '-' in tag:
                 tag = tag.translate(None, '-')
                 minus.append(tag)
+            else:
+                and_case.append(tag)
             c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
             hashes = c.fetchone()[0]
             if len(hashes) <= 33 and initial == False:
