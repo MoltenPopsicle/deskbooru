@@ -11,7 +11,6 @@ class db(object):
             buff = f.read()
             h.update(buff)
             md5hash = h.hexdigest()
-        md5hash = hash_filein(filein)
         db().tagassign(filein, md5hash, tags) 
 
     #adds tables and columns to db file
@@ -93,6 +92,7 @@ class search(object):
             c.execute('SELECT filename FROM hashtable WHERE hashes = ?', (h,))
             filename = c.fetchone()
             file_list.append(filename)
+        print(file_list)
         return file_list
                 
 
