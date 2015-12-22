@@ -4,20 +4,15 @@ import sqlite3
 import hashlib
 
 class db(object):
-    #hashes input file
-    def hashlist(self, filein):
-        def hash_filein(filein):
-            h = hashlib.md5()
-            with open(filein, 'rb') as f:
-                buff = f.read()
-                h.update(buff)
-                return h.hexdigest()
-        #uses tagassign function to add file in list to db file, clears list and does next file
-        for arg in filein:
-            rawtags = raw_input("Tags to assign to %s (separate by one space): " % arg)
-            tagsin = rawtags.split()
-            md5hash = hash_filein(arg)
-            db().tagassign(arg, md5hash, tagsin) 
+    #hashes input file and adds it and its tags to db
+    def hash_filein(self, filein, tags):
+        h = hashlib.md5()
+        with open(filein, 'rb') as f:
+            buff = f.read()
+            h.update(buff)
+            md5hash = h.hexdigest()
+        md5hash = hash_filein(filein)
+        db().tagassign(filein, md5hash, tags) 
 
     #adds tables and columns to db file
     def create(self):  
@@ -52,43 +47,39 @@ class db(object):
 class search(object):
     def regex(self, tag_hashlist, hashes, tag):
         temphash = []
-        if len(tag_hashlist) <= 1:
-            return tag_hashlist
-        elif tag in all_matching:
+        if '~' in tag:
             tag_hashlist.extend(hashes)
         else:
             for h in tag_hashlist:
-                if tag in minus and h in hashes:
+                print(regex)
+                if '-' in tag and h in hashes:
                     print("%s is minus and %s will be removed" % (tag, h))
                     temphash.append(h)
-                elif tag in and_case and h not in hashes:
+                elif regex == False and h not in hashes:
                     temphash.append(h)
+                    print("either and or a big dumb")
             for h in temphash:
                 tag_hashlist.remove(h)
-                print("HASH" + h)
-            print(temphash)
         return tag_hashlist
     
     def results(self, tags):
-        global all_matching
-        global minus
-        global and_case
+        global regex
         file_list = []
-        all_matching = []
-        and_case = []
         tag_hashlist = []
-        minus = []
         initial = False
+        print(tags)
         for tag in tags:
+            regex = True
+            print(tag)
             if '~' in tag:
-                tag = tag.translate(None, '~')
-                all_matching.append(tag)
+                tagin = tag.translate(None, '~')
             elif '-' in tag:
-                tag = tag.translate(None, '-')
-                minus.append(tag)
+                print("MINUS")
+                tagin = tag.translate(None, '-')
             else:
-                and_case.append(tag)
-            c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tag,))
+                tagin = tag
+                regex = False
+            c.execute('SELECT hashes FROM tagtable WHERE tag = ?', (tagin,))
             hashes = c.fetchone()[0]
             if len(hashes) <= 33 and initial == False:
                 tag_hashlist = hashes
@@ -96,8 +87,7 @@ class search(object):
                 hashes = hashes.split(', ')
                 if initial == False:
                     tag_hashlist.extend(hashes)
-            if initial == True:
-                tag_hashlist = search().regex(tag_hashlist, hashes, tag)
+            tag_hashlist = search().regex(tag_hashlist, hashes, tag)
             initial = True
         for h in tag_hashlist:
             c.execute('SELECT filename FROM hashtable WHERE hashes = ?', (h,))
