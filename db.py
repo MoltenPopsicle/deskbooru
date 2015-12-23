@@ -15,9 +15,7 @@ class db(object):
             md5hash = h.hexdigest()
         db().tagassign(filein, md5hash, tags)
         if count >= 20:
-            conn.commit()
-            conn.close()
-            sqlite3.connect('tags.db') #creates empty db file if it doesn't exist
+            return "loop"
         else:
             count += 1
 
