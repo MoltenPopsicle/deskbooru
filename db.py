@@ -4,14 +4,22 @@ import sqlite3
 import hashlib
 
 class db(object):
+    count = 0
     #hashes input file and adds it and its tags to db
-    def hash_filein(self, filein, tags):
+    def hash_filein(self, filein, tags, count):
+        print(count)
         h = hashlib.md5()
         with open(filein, 'rb') as f:
             buff = f.read()
             h.update(buff)
             md5hash = h.hexdigest()
-        db().tagassign(filein, md5hash, tags) 
+        db().tagassign(filein, md5hash, tags)
+        if count >= 20:
+            conn.commit()
+            conn.close()
+            sqlite3.connect('tags.db') #creates empty db file if it doesn't exist
+        else:
+            count += 1
 
     #adds tables and columns to db file
     def create(self):  
