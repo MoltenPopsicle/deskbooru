@@ -1,43 +1,18 @@
-import os
 import sys
-import argparse
-from crawler import crawl
-from db import db, search
+import os
+import subprocess
 
-class tag(object):
-    def standard(self):
-        file_paths = []
-        count = 0
-        for file_or_dir in arg_filepath:
-            if os.path.isdir(file_or_dir) == True:
-                file_paths.extend(crawl().get_filepaths(file_or_dir))
-            else:
-                file_paths.append(os.path.abspath(file_or_dir))
-        choice = raw_input("BULK, FILEPATH, STANDARD or SEARCH: ")
-        if choice == 'SEARCH':
-            tags = raw_input("Tags to search for: ").split(' ')
-            search().results(tags) 
-        elif choice == 'BULK':
-            tags = raw_input("Tags to assign to all files: ").split(' ')
-            for filein in file_paths:
-                db().hash_filein(filein, tags, count) 
-                print("Tags %s assigned to %s" % (str(tags), filein))
-                count += 1                
-        if choice == 'STANDARD':
-            for filein in file_paths:
-                tags = raw_input("Tags to assign to %s" % filein)
-                db().hash_filein(filein, tags, count) 
-                print("Tags %s assigned to %s" % (str(tags), filein))
-                count += 1                
-        elif choice == 'FILEPATH':
-            for filein in file_paths:
-                tags = filein.split('/')
-                db().hash_filein(filein, tags, count) 
-                print("Tags %s assigned to %s" % (str(tags), filein))
-                count += 1                
+include_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+sys.path.insert(0, include_path + "/include")
+try: 
+    option = sys.argv[1]
+except:
+    print('''Insufficient arguments 
+           USAGE: deskbooru.py [COMMAND] [COMMAND OPTIONS]
+           For more, use 'deskbooru.py' ''')
+    sys.exit()
 
-parser = argparse.ArgumentParser()
-parser.add_argument('filepath', nargs='+', help='the directory or file(s) you would like to tag')
-args = parser.parse_args()
-arg_filepath = args.filepath
-tag().standard()
+if option == "add":
+    command = include_path + '/include/tagging.py'
+    subprocess.Popen(['python2', command, sys.argv[2], sys.argv[3]])
+    print "add, good"
