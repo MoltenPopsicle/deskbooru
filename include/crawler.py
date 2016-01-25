@@ -9,5 +9,4 @@ class crawl(object):
         for root, dirs, files in os.walk(directory):
             for filename in files:
                 filepath = os.path.join(root, filename)
-                file_paths.append(filepath)
-        return file_paths
+                yield filepath
