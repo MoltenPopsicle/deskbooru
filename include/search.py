@@ -4,7 +4,7 @@ import argparse
 from crawler import crawl
 from db import db, search
 
-class add(object):
+class tag(object):
     def standard(self):
         file_paths = []
         count = 0

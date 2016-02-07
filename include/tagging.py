@@ -30,15 +30,3 @@ class tagAdd(object):
             t = timeit.Timer('tagAdd().add_tag(tags, filein)', setup='from tagging import tagAdd; tags = "fl"; filein = "%s"' % filein)
             time_taken = t.timeit(1)
             print("It took %s seconds to hash %s" %(time_taken, filein))
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--bulk', nargs='?') 
-    parser.add_argument('-f', '--filepath_name', nargs='?')
-    parser.add_argument('--timetest', nargs='?')
-    args = parser.parse_args()
-    print(args)
-    if args.filepath_name is not None:
-        tagAdd().filepath(crawl().get_filepaths(filepath_name))
-    elif args.bulk is not None:
-        tagAdd().bulk(crawl().get_filepaths(args.bulk))

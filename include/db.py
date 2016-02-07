@@ -43,7 +43,12 @@ class db(object):
             c.execute('UPDATE tagtable SET hashes = ? WHERE tag = ?', (hashes, tag,))  
         conn.commit()
     
-        
+    def remove(self, file, **kwargs):
+        print(file)
+        if kwargs is not None:
+            print(kwargs)
+        c.execute('DELETE FROM hashtable WHERE filename = ?', (file,))
+            
 class search(object):
     def regex(self, tag_hashlist, hashes, tag):
         temphash = []
@@ -53,11 +58,9 @@ class search(object):
             for h in tag_hashlist:
                 print(regex)
                 if '-' in tag and h in hashes:
-                    print("%s is minus and %s will be removed" % (tag, h))
                     temphash.append(h)
                 elif regex == False and h not in hashes:
                     temphash.append(h)
-                    print("either and or a big dumb")
             for h in temphash:
                 tag_hashlist.remove(h)
         return tag_hashlist
@@ -74,7 +77,6 @@ class search(object):
             if '~' in tag:
                 tagin = tag.translate(None, '~')
             elif '-' in tag:
-                print("MINUS")
                 tagin = tag.translate(None, '-')
             else:
                 tagin = tag
@@ -87,7 +89,7 @@ class search(object):
                 hashes = hashes.split(', ')
                 if initial == False:
                     tag_hashlist.extend(hashes)
-            tag_hashlist = search().regex(tag_hashlist, hashes, tag)
+            tag_hashlist = self.regex(tag_hashlist, hashes, tag)
             initial = True
         for h in tag_hashlist:
             c.execute('SELECT filename FROM hashtable WHERE hashes = ?', (h,))
@@ -96,7 +98,6 @@ class search(object):
         print(file_list)
         return file_list
                 
-
 
 conn = sqlite3.connect('tags.db') #creates empty db file if it doesn't exist
 c = conn.cursor()
