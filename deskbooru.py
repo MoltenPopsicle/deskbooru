@@ -22,8 +22,8 @@ if args.command == "add":
     parser.add_argument('-b', '--bulk', nargs='*', help='Tag all files under a directory recursively with one set of specified tags')
     parser.add_argument('-i', '--individual', nargs='*', help='Tag one or more files with a set of specified tags for each file')
     parser.add_argument('-p', '--path', nargs='*', help='Tag all files under a directory recursively by their parent directories e.g. a file under /home/user would be tagged home and user')
+    parser.add_argument('-f', '--filename', nargs='*', help='Tag files or directories of files by their filename, tags seperated by a hyphen e.g. a file named python-important-due_friday would be tagged python, important, and due_friday')
     parser.add_argument('--timetest', nargs='?', help='Test the speed of the hasing/adding function using the path argument')
-    parser.add_argument('--nohash', help='Tag files without hashing them (NOT RECOMMENDED; duplicates and changes in filename WILL affect the database)')
     args = parser.parse_args()
     if args.bulk is not None:
         tags = args.bulk[0].split(' ')
@@ -37,22 +37,23 @@ if args.command == "add":
             if os.path.isdir(dir):
                 files = crawl().get_filepaths(dir)
                 for file in files:
-                    tags = raw_input("Tags to assign to %s: " % file)
+                    tags = input("Tags to assign to %s: " % file)
                     file = os.path.realpath(file)
                     tagging.tagAdd().add_tag(tags, file)
             else:
                 file = os.path.realpath(dir)
                 print(file)
-                tags = raw_input("Tags to assign to %s: " % dir)
+                tags = input("Tags to assign to %s: " % dir)
                 tagging.tagAdd().add_tag(tags, file)
     elif args.path is not None:
-        tag_exclude = args.path[0].split(' ')
-        if '"' not in tag_exclude[0]:
-            print("working")
-            dirs = args.path
-            tag_exclude = None
+        tag_exclude = []
+        dirs = []
+        if '/' in args.path[0]:
+            dirs.extend(args.path)
         else:
-            dirs = args.path[1:]
+            tag_exclude = args.path[0].split(' ')
+            dirs.extend(args.path[1:])
+        tag_exclude.append('')
         for dir in dirs:
             files = crawl().get_filepaths(dir)
             tagging.tagAdd().filepath(files, tag_exclude)
@@ -62,8 +63,8 @@ if args.command == "add":
         tagging.tagAdd().timetest(files)
 
 if args.command == "search":
-   search().results(args.options)
-
+    taglist = args.options[0].split(' ')
+    search().results(taglist)
 if args.command == "rm":
     parser._actions[-1].container._remove_action(parser._actions[-1])
     parser.add_argument("-t", "--tag", nargs='?', help="Remove specific tag(s) from file(s)")
