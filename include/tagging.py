@@ -24,6 +24,15 @@ class tagAdd(object):
                 tags[:] = [tag for tag in tags if tag not in tag_exclude]
                 print(tags)
             tagAdd().add_tag(tags, filein)
+    def filename(self, file_paths):
+        file = os.path.basename(file_paths)
+        print(file)
+        tags = file.split('-')
+        if '.' in file:
+            filetype = file.split('.')[-1]
+            tags.append("type:" + filetype)
+        print(tags)
+        tagAdd().add_tag(tags, file_paths)
     def timetest(self, file_paths):
         numbers = []
         for filein in file_paths:

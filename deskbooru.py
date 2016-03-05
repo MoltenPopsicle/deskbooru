@@ -48,7 +48,7 @@ if args.command == "add":
     elif args.path is not None:
         tag_exclude = []
         dirs = []
-        if '/' in args.path[0]:
+        if os.path.isdir(args.path[0]):
             dirs.extend(args.path)
         else:
             tag_exclude = args.path[0].split(' ')
@@ -57,6 +57,14 @@ if args.command == "add":
         for dir in dirs:
             files = crawl().get_filepaths(dir)
             tagging.tagAdd().filepath(files, tag_exclude)
+    elif args.filename is not None:
+        if os.path.isdir(args.filename[0]):
+            dir = os.path.abspath(args.filename[0])
+            files = crawl().get_filepaths(dir)
+        else:
+            files = (os.path.abspath(args.filename[0]), )
+        for file in files:
+            tagging.tagAdd().filename(file)
     elif args.timetest is not None:
         dir = args.timetest
         files = crawl().get_filepaths(dir)
