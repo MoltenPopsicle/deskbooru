@@ -26,62 +26,76 @@ if args.command == "add":
     parser.add_argument('--timetest', nargs='?', help='Test the speed of the hasing/adding function using the path argument')
     args = parser.parse_args()
     if args.bulk is not None:
-        tags = args.bulk[0].split(' ')
+        tags = args.bulk[0].split(', ')
         dirs = args.bulk[1:]
-        for dir in dirs:
-            files = crawl().get_filepaths(dir)
+        for directory in dirs:
+            files = crawl().get_filepaths(directory)
             print(files)
             tagging.tagAdd().bulk(files, tags)
     elif args.individual is not None:
-        for dir in args.individual:
-            if os.path.isdir(dir):
-                files = crawl().get_filepaths(dir)
+        for directory in args.individual:
+            if os.path.isdir(directory):
+                files = crawl().get_filepaths(directory)
                 for file in files:
-                    tags = input("Tags to assign to %s: " % file)
+                    tags = input("Tags to assign to %s: " % file).split(', ')
                     file = os.path.realpath(file)
                     tagging.tagAdd().add_tag(tags, file)
             else:
-                file = os.path.realpath(dir)
+                file = os.path.realpath(directory)
                 print(file)
-                tags = input("Tags to assign to %s: " % dir)
+                tags = input("Tags to assign to %s: " % directory).split(', ')
                 tagging.tagAdd().add_tag(tags, file)
     elif args.path is not None:
-        tag_exclude = []
+        tag_exclude = ['']
         dirs = []
         if os.path.isdir(args.path[0]):
             dirs.extend(args.path)
         else:
-            tag_exclude = args.path[0].split(' ')
+            tag_exclude = args.path[0].split(', ')
             dirs.extend(args.path[1:])
-        tag_exclude.append('')
-        for dir in dirs:
-            files = crawl().get_filepaths(dir)
+        for directory in dirs:
+            files = crawl().get_filepaths(directory)
             tagging.tagAdd().filepath(files, tag_exclude)
     elif args.filename is not None:
         if os.path.isdir(args.filename[0]):
-            dir = os.path.abspath(args.filename[0])
-            files = crawl().get_filepaths(dir)
+            directory = os.path.abspath(args.filename[0])
+            files = crawl().get_filepaths(directory)
         else:
             files = (os.path.abspath(args.filename[0]), )
         for file in files:
             tagging.tagAdd().filename(file)
     elif args.timetest is not None:
-        dir = args.timetest
-        files = crawl().get_filepaths(dir)
+        directory = args.timetest
+        files = crawl().get_filepaths(directory)
         tagging.tagAdd().timetest(files)
 
 if args.command == "search":
     taglist = args.options[0].split(' ')
+    print(taglist)
     search().results(taglist)
+
 if args.command == "rm":
     parser._actions[-1].container._remove_action(parser._actions[-1])
-    parser.add_argument("-t", "--tag", nargs='?', help="Remove specific tag(s) from file(s)")
-    parser.add_argument("filepath", help="File(s) or filepath to remove")
+    parser.add_argument("-t", "--tag", nargs='*', help="Remove specific tag(s) from file(s)")
+    parser.add_argument("filepath", nargs='*', help="File(s) or directories to remove")
     args = parser.parse_args()
-    print(args.tag)
-    db().remove(args.filepath[0], args.tag[0])
-    #if os.path.isdir(args.filepath):
-        #files = crawl().get_filepaths(args.filepath)
+    if args.tag:
+        tags_remove = args.tag[0]
+        filepaths = args.tag[1:]
+    else:
+        filepaths = args.filepath
+    for filepath in filepaths:
+        filepath = os.path.abspath(filepath)
+        if os.path.isdir(filepath):
+            files = crawl().get_filepaths(filepath)
+        else:
+            files = filepath
+        if args.tag is None:
+            db().rm(filepath)
+        else:
+            db().rm(filepath, tags_remove)
+    #if os.path.isdir(args.filepath[0]):
+    #    print("is dir")
     #else:
-        #files = args.filepath
-    #print(files)
+    #    print("is not dir")
+    #db().remove(args.filepath)

@@ -7,9 +7,12 @@ from db import db, search
 
 class tagAdd(object):
     def add_tag(self, tags, filein):
-            db().tagassign(filein, tags)
-            print("Tags %s assigned to %s" % (str(tags), filein))
-    
+            assign = db().tagassign(filein, tags)
+            print(assign)
+            if assign == "no change":
+                print("File %s already tagged" % filein)
+            else:
+                print("Tags %s assigned to %s" % (str(tags), filein))
     def bulk(self, file_paths, tags):
         for filein in file_paths:
             tagAdd().add_tag(tags, filein)
@@ -20,18 +23,15 @@ class tagAdd(object):
     def filepath(self, file_paths, tag_exclude):
         for filein in file_paths:
             tags = filein.split('/')
-            if tag_exclude is not None:
-                tags[:] = [tag for tag in tags if tag not in tag_exclude]
-                print(tags)
+            tag_exclude.append(os.path.basename(filein))
+            tags[:] = [tag for tag in tags if tag not in tag_exclude]
             tagAdd().add_tag(tags, filein)
     def filename(self, file_paths):
         file = os.path.basename(file_paths)
-        print(file)
         tags = file.split('-')
         if '.' in file:
             filetype = file.split('.')[-1]
             tags.append("type:" + filetype)
-        print(tags)
         tagAdd().add_tag(tags, file_paths)
     def timetest(self, file_paths):
         numbers = []
@@ -43,11 +43,11 @@ class tagAdd(object):
                 numbers.append(time_taken)
             except:
                 break
-            print("It took %s seconds to hash %s" %(time_taken, filein))
+            print("It took %s seconds to add %s to the database" %(time_taken, filein))
         #print(numbers)
         avg = 0
         for number in numbers:
             avg = avg + number
         total = avg
         avg = avg / len(numbers)
-        print("\nMean tag time is %s, total tag time is %s" % (avg, total))
+        print("\nMean tag time is %s, total tag time is %s for %s files" % (avg, total, len(numbers)))

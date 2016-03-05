@@ -17,8 +17,9 @@ class db(object):
     #adds tables and columns to db file
     def create(self):  
         c.execute('''CREATE TABLE IDtable
-                (ids text UNIQUE,
-                filename text);''')
+                (filename text,
+                tags text,
+                filesize int);''')
         c.execute('''CREATE TABLE tagtable
                 (tag text PRIMARY KEY,
                 ids text);''')
@@ -27,7 +28,11 @@ class db(object):
 
     #writes filenames and their respective ids to db file
     def tagassign(self, file, tags, *args):
-        c.execute('INSERT OR REPLACE INTO IDtable (filename) VALUES (?)', (file,))
+        filesize = os.path.getsize(file)
+        idtable_tags = str(tags).replace('[','')
+        idtable_tags = idtable_tags.replace(']', '')
+        idtable_tags = idtable_tags.replace("'", '')
+        c.execute('INSERT OR REPLACE INTO IDtable (filename, tags, filesize) VALUES (?,?,?)', (file, idtable_tags, filesize,))
         for tag in tags:
             c.execute('INSERT OR IGNORE INTO tagtable (tag) VALUES (?)', (tag,))
             #pulls all ids from tag's row in a list, then appends the list with the new hash and joins it with a comma and space so that the row can be updated
@@ -35,22 +40,35 @@ class db(object):
             oldids = str(c.fetchone()[0])
             c.execute('SELECT ROWID FROM IDtable where filename = ?', (file,))
             newid = str(c.fetchone()[0])
-            if oldids:
+            if newid in oldids:
+                return "no change"
+            elif oldids != "None":
                 ids = ', '.join([oldids, newid])
-            elif newid in oldids:
-                break
             else:
                 ids = newid
-           #updates row 
+           #updates row
             c.execute('UPDATE tagtable SET ids = ? WHERE tag = ?', (ids, tag,))  
         conn.commit()
     
-    def remove(self, file, **kwargs):
-        print(file)
-        if kwargs is not None:
-            print(kwargs)
-        c.execute('DELETE FROM hashtable WHERE filename = ?', (file,))
-            
+    def rm(self, file, *args):
+        c.execute('SELECT ROWID FROM IDtable WHERE filename = ?', (file,))
+        file_id = c.fetchone()[0]
+        if args:
+            tag_removal = args
+        else:
+            c.execute('SELECT tags FROM IDtable WHERE ROWID = ?', (file_id,))
+            tag_removal = c.fetchone()[0].split(', ')
+        for tag in tag_removal:
+            c.execute('SELECT IDs from tagtable where tag = ?', (tag,))
+            oldids = c.fetchone()[0]
+            ids = oldids.split(', ')
+            ids.remove(str(file_id))
+            ids = str(ids)
+            ids = ids.replace('[', '')
+            ids = ids.replace(']', '')
+            c.execute('UPDATE tagtable SET IDs = ? where tag = ?', (ids, tag,))
+            c.execute('DELETE FROM IDtable where ROWID = ?', (file_id,))
+        conn.commit() 
 class search(object):
     def regex(self, tag_idlist, ids, tag):
         tempid = []
@@ -75,25 +93,27 @@ class search(object):
             regex = True
             if '~' in tag:
                 tagin = tag.replace('~','')
-                print(tagin)
             elif '-' in tag:
                 tagin = tag.replace('-','')
             else:
                 tagin = tag
                 regex = False
+            print(tagin)
             c.execute('SELECT IDs FROM tagtable WHERE tag = ?', (tagin,))
             ids = c.fetchone()[0]
+            print(ids)
             if len(ids) <= 33 and initial == False:
                 tag_idlist = ids
             else:
                 ids = ids.split(', ')
+                print(ids)
                 if initial == False:
                     tag_idlist.extend(ids)
             tag_idlist = self.regex(tag_idlist, ids, tag)
             initial = True
-        #tag_idlist.remove('None')
-        for id in tag_idlist:
-            c.execute('SELECT filename FROM IDtable WHERE ROWID = ?', (id,))
+        print(tag_idlist)
+        for file_id in tag_idlist:
+            c.execute('SELECT filename FROM IDtable WHERE ROWID = ?', (file_id,))
             filename = c.fetchone()[0]
             file_list.append(filename)
         print(file_list)
