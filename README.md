@@ -1,2 +1,2 @@
 # deskbooru
-upcoming project written in python that allows a booru-style tagging system to organize and provide search for local images as well as searching, viewing, and bulk downloading of various booru websites
+Deskbooru is a program with the goal of creating a small, cross-platform booru-style system for desktop, maybe server. In its current state it is a (very) lightweight but functional file tagging system. Documentation coming soon.
