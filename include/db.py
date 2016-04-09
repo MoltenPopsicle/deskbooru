@@ -41,7 +41,7 @@ class db(object):
             c.execute('SELECT ROWID FROM IDtable where filename = ?', (file,))
             newid = str(c.fetchone()[0])
             if newid in oldids:
-                return "no change"
+                return "No change"
             elif oldids != "None":
                 ids = ', '.join([oldids, newid])
             else:
@@ -53,21 +53,28 @@ class db(object):
     def rm(self, file, *args):
         c.execute('SELECT ROWID FROM IDtable WHERE filename = ?', (file,))
         file_id = c.fetchone()[0]
+        #Check whether the file is to be removed, or if tags are to be removed from a file. If the file is to be removed totally, it must be removed from the ID table, and the tags whose ID lists need to have the ID of the file removed are every tag the file was tagged with. Else the tags are the ones specified and the file is not removed from the ID table. 
         if args:
             tag_removal = args
+            print("Tags %s to be removed from %s" % (str(tag_removal), file))
         else:
             c.execute('SELECT tags FROM IDtable WHERE ROWID = ?', (file_id,))
             tag_removal = c.fetchone()[0].split(', ')
+            c.execute('DELETE FROM IDtable where ROWID = ?', (file_id,))
+            print("File %s removed from the database" % file)
+            print("FileID")
+            print(file_id)
         for tag in tag_removal:
             c.execute('SELECT IDs from tagtable where tag = ?', (tag,))
             oldids = c.fetchone()[0]
             ids = oldids.split(', ')
+            print(ids)
             ids.remove(str(file_id))
             ids = str(ids)
-            ids = ids.replace('[', '')
-            ids = ids.replace(']', '')
+            exclude = ['[', ']', "'"]
+            ids = ids.join(ch for ch in ids if ch not in exclude)
+            print(ids)
             c.execute('UPDATE tagtable SET IDs = ? where tag = ?', (ids, tag,))
-            c.execute('DELETE FROM IDtable where ROWID = ?', (file_id,))
         conn.commit() 
 class search(object):
     def regex(self, tag_idlist, ids, tag):
@@ -98,15 +105,12 @@ class search(object):
             else:
                 tagin = tag
                 regex = False
-            print(tagin)
             c.execute('SELECT IDs FROM tagtable WHERE tag = ?', (tagin,))
             ids = c.fetchone()[0]
-            print(ids)
-            if len(ids) <= 33 and initial == False:
+            ids = ids.split(', ')
+            if len(ids) == 1 and initial == False:
                 tag_idlist = ids
             else:
-                ids = ids.split(', ')
-                print(ids)
                 if initial == False:
                     tag_idlist.extend(ids)
             tag_idlist = self.regex(tag_idlist, ids, tag)

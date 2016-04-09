@@ -8,8 +8,7 @@ from db import db, search
 class tagAdd(object):
     def add_tag(self, tags, filein):
             assign = db().tagassign(filein, tags)
-            print(assign)
-            if assign == "no change":
+            if assign == "No change":
                 print("File %s already tagged" % filein)
             else:
                 print("Tags %s assigned to %s" % (str(tags), filein))
@@ -23,6 +22,7 @@ class tagAdd(object):
     def filepath(self, file_paths, tag_exclude):
         for filein in file_paths:
             tags = filein.split('/')
+            tag_exclude.append('')
             tag_exclude.append(os.path.basename(filein))
             tags[:] = [tag for tag in tags if tag not in tag_exclude]
             tagAdd().add_tag(tags, filein)
@@ -44,7 +44,6 @@ class tagAdd(object):
             except:
                 break
             print("It took %s seconds to add %s to the database" %(time_taken, filein))
-        #print(numbers)
         avg = 0
         for number in numbers:
             avg = avg + number

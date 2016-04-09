@@ -21,10 +21,11 @@ if args.command == "add":
     parser._actions[-1].container._remove_action(parser._actions[-1])
     parser.add_argument('-b', '--bulk', nargs='*', help='Tag all files under a directory recursively with one set of specified tags')
     parser.add_argument('-i', '--individual', nargs='*', help='Tag one or more files with a set of specified tags for each file')
-    parser.add_argument('-p', '--path', nargs='*', help='Tag all files under a directory recursively by their parent directories e.g. a file under /home/user would be tagged home and user')
+    parser.add_argument('-p', '--path', nargs='*', help='Tag all files under a directory recursively by their parent directories e.g. a file under /home/user would be tagged home and user. If the first argument passed to -p is not a directory, it will be interpreted as a tag or list of tags (separate by a comma and a space) to NOT assign to files')
     parser.add_argument('-f', '--filename', nargs='*', help='Tag files or directories of files by their filename, tags seperated by a hyphen e.g. a file named python-important-due_friday would be tagged python, important, and due_friday')
     parser.add_argument('--timetest', nargs='?', help='Test the speed of the hasing/adding function using the path argument')
     args = parser.parse_args()
+    
     if args.bulk is not None:
         tags = args.bulk[0].split(', ')
         dirs = args.bulk[1:]
@@ -32,7 +33,8 @@ if args.command == "add":
             files = crawl().get_filepaths(directory)
             print(files)
             tagging.tagAdd().bulk(files, tags)
-    elif args.individual is not None:
+    
+    if args.individual is not None:
         for directory in args.individual:
             if os.path.isdir(directory):
                 files = crawl().get_filepaths(directory)
@@ -45,7 +47,8 @@ if args.command == "add":
                 print(file)
                 tags = input("Tags to assign to %s: " % directory).split(', ')
                 tagging.tagAdd().add_tag(tags, file)
-    elif args.path is not None:
+    
+    if args.path is not None:
         tag_exclude = ['']
         dirs = []
         if os.path.isdir(args.path[0]):
@@ -56,22 +59,30 @@ if args.command == "add":
         for directory in dirs:
             files = crawl().get_filepaths(directory)
             tagging.tagAdd().filepath(files, tag_exclude)
-    elif args.filename is not None:
-        if os.path.isdir(args.filename[0]):
-            directory = os.path.abspath(args.filename[0])
-            files = crawl().get_filepaths(directory)
-        else:
-            files = (os.path.abspath(args.filename[0]), )
+    
+    if args.filename is not None:
+        try:
+            if os.path.isdir(args.filename[0]):
+                directory = os.path.abspath(args.filename[0])
+                files = crawl().get_filepaths(directory)
+            else:
+                files = (os.path.abspath(args.filename[0]), )
+        #So that the user can use both -f and -p, the index error returned when trying to use them both is handled as performing the normal filename argument except on the directory given to -p. Will figure out a better way to do this later.
+        except IndexError:
+            if os.path.isdir(args.path[0]) == False:
+                args.path.pop(0)
+            for path in args.path:
+                files = crawl().get_filepaths(path)
         for file in files:
             tagging.tagAdd().filename(file)
-    elif args.timetest is not None:
+    
+    if args.timetest is not None:
         directory = args.timetest
         files = crawl().get_filepaths(directory)
         tagging.tagAdd().timetest(files)
 
 if args.command == "search":
     taglist = args.options[0].split(' ')
-    print(taglist)
     search().results(taglist)
 
 if args.command == "rm":
