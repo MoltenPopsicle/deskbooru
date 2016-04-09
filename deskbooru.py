@@ -17,7 +17,7 @@ args = parser.parse_args()
 
 
 if args.command == "add":
-    #remove options from the list of arguments, as options is useless for addition
+    #remove options from the list of arguments, as options is useless for adding tags
     parser._actions[-1].container._remove_action(parser._actions[-1])
     parser.add_argument('-b', '--bulk', nargs='*', help='Tag all files under a directory recursively with one set of specified tags')
     parser.add_argument('-i', '--individual', nargs='*', help='Tag one or more files with a set of specified tags for each file')
@@ -82,8 +82,18 @@ if args.command == "add":
         tagging.tagAdd().timetest(files)
 
 if args.command == "search":
-    taglist = args.options[0].split(' ')
-    search().results(taglist)
+    parser._actions[-1].container._remove_action(parser._actions[-1])
+    parser.add_argument("--gallery", nargs='*', help="Instead of returning a list, return every filename in sequence, separated by a space, so that the files can all be piped")
+    parser.add_argument("tags", nargs='*', help="Tags to search for")
+    args = parser.parse_args()
+    if args.gallery:
+        exclude = ["'", ',', '[', ']'] 
+        results = search().results(args.gallery)
+        results = str(results)
+        results = ''.join(ch for ch in results if ch not in exclude)
+    else:
+        results = search().results(args.tags)
+    print(results)
 
 if args.command == "rm":
     parser._actions[-1].container._remove_action(parser._actions[-1])
